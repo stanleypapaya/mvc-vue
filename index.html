@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdn.bootcss.com/axios/0.19.0-beta.1/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div>
+      书名:《__name__》
+      数量: <span id="number">__number__</span>
+    </div>
+    <div>
+      <button id="addOne">加1</button>
+      <button id="minusOne">减1</button>
+      <button id="reset">归零</button>
+    </div>
+  </div>
+
+  <script>
+    //从数据库拿初始的数量,axios可以mock一个数据库
+    //在真正返回 response前 拦截
+    axios.interceptors.response.use(function(response){
+        let config = response.config
+        let {method, url, data} = config
+        let book = {
+          name: 'JavaScript高级程序设计',
+          number: 3,
+          id: 1
+        }
+        if(url === '/books/1' && method ==='get'){
+          response.data = book
+        }else if(url === '/books/1' && method ==='put'){
+          Object.assign(book, data)
+          response.data = book
+        }
+        return response
+    })
+    //本来response返回应该是null，因为数据库没有，但是axios拦截了response并造了一个新的response
+    axios.get('/books/1')
+        .then(({data}) =>{
+            let originalHtml = $('#app').html()
+            let newHtml = originalHtml.replace('__name__', data.name)
+                .replace('__number__', data.number)
+            $('#app').html(newHtml)
+        })
+    //点加1 后把数据put回给虚拟的数据库，并更新
+    $('#app').on('click','#addOne', function(){
+        var oldNumber = $('#number').text()
+        var newNumber = oldNumber - 0 + 1
+        axios.put('/books/1',{
+          number: newNumber
+        }).then(()=>{
+          $('#number').text(newNumber)
+        })   
+    })
+    //点减1 后把数据put回给虚拟的数据库，并更新
+    $('#app').on('click','#minusOne', function(){
+        var oldNumber = $('#number').text()
+        var newNumber = oldNumber - 0 - 1
+        axios.put('/books/1',{
+          number: newNumber
+        }).then(()=>{
+          $('#number').text(newNumber)
+        })
+    })
+
+    $('#app').on('click','#reset', function(){
+        axios.put('/books/1',{
+          number: 0
+        }).then(()=>{
+          $('#number').text(0)
+        })
+    })
+    
+</script>
+</body>
+</html>
