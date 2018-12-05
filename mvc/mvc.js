@@ -22,8 +22,8 @@ Model.prototype.update = function(data){
     })
 }
 
-function View({el, template}){
-  this.el = el
+function View({element, template}){
+  this.element = element
   this.template = template
 }
 View.prototype.render = function(data){
@@ -31,11 +31,11 @@ View.prototype.render = function(data){
   for(let key in data){
     html = html.replace(`__${key}__`, data[key])
   }
-  $(this.el).html(html)
+  $(this.element).html(html)
 }
 
 
-// ----------  上面是 MVC 类，下面是对象
+// ----------  上面是 MVC 构造函数，下面是实例对象
 let model = new Model({
   data: {
     name: '',
@@ -46,7 +46,7 @@ let model = new Model({
 })
 
 let view = new View({
-  el: '#app',
+  element: '#app',
   template: `
     <div>
     书名：《__name__》
@@ -60,7 +60,7 @@ let view = new View({
   `
 })
 
-var controller = {
+let controller = {
   init(options) {
     
     let view = options.view
@@ -106,9 +106,9 @@ var controller = {
   },
   bindEvents() {
     // this === controller
-    $(this.view.el).on('click', '#addOne', this.addOne.bind(this))
-    $(this.view.el).on('click', '#minusOne', this.minusOne.bind(this))
-    $(this.view.el).on('click', '#reset', this.reset.bind(this))
+    $(this.view.element).on('click', '#addOne', this.addOne.bind(this))
+    $(this.view.element).on('click', '#minusOne', this.minusOne.bind(this))
+    $(this.view.element).on('click', '#reset', this.reset.bind(this))
   }
 }
 
